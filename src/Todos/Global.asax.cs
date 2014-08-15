@@ -8,6 +8,8 @@ using ServiceStack.Text;
 namespace Todos
 {
     // Define your ServiceStack web service request (i.e. Request DTO).
+    [Route("/todos")]
+    [Route("/todos/{Id}")]
     public class Todo
     {
         public long Id { get; set; }
@@ -59,7 +61,7 @@ namespace Todos
     // Create your ServiceStack web service application with a singleton AppHost.
     public class AppHost : AppHostBase
     {
-        // Initializes a new instance of your ServiceStack application, with the specified name and assembly containing the services.
+        // Initializes your ServiceStack App Instance, with the specified assembly containing the services.
         public AppHost() : base("Backbone.js TODO", typeof(TodoService).Assembly) { }
 
         // Configure the container with the necessary routes for your ServiceStack application.
@@ -70,11 +72,6 @@ namespace Todos
 
             //Register Redis factory in Funq IoC. The default port for Redis is 6379.
             container.Register<IRedisClientsManager>(new BasicRedisClientManager("localhost:6379"));
-
-            //Register user-defined REST Paths using the fluent configuration API
-            Routes
-              .Add<Todo>("/todos")
-              .Add<Todo>("/todos/{Id}");
         }
     }
 
