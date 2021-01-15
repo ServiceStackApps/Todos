@@ -2,7 +2,6 @@
 using ServiceStack;
 using ServiceStack.Redis;
 using Funq;
-using ServiceStack.Text;
 
 //The entire C# source code for the ServiceStack + Redis TODO REST backend. There is no other .cs :)
 namespace Todos
@@ -24,7 +23,7 @@ namespace Todos
         public object Get(Todo todo)
         {
             //Return a single Todo if the id is provided.
-            if (todo.Id != default(long))
+            if (todo.Id != default)
                 return Redis.As<Todo>().GetById(todo.Id);
 
             //Return all Todos items.
@@ -37,7 +36,7 @@ namespace Todos
             var redis = Redis.As<Todo>();
             
             //Get next id for new todo
-            if (todo.Id == default(long)) 
+            if (todo.Id == default) 
                 todo.Id = redis.GetNextSequence();
             
             redis.Store(todo);
@@ -46,16 +45,10 @@ namespace Todos
         }
 
         // Handles creating and updating the Todo items.
-        public Todo Put(Todo todo)
-        {
-            return Post(todo);
-        }
+        public Todo Put(Todo todo) => Post(todo);
 
         // Handles Deleting the Todo item
-        public void Delete(Todo todo)
-        {
-            Redis.As<Todo>().DeleteById(todo.Id);
-        }
+        public void Delete(Todo todo) => Redis.As<Todo>().DeleteById(todo.Id);
     }
 
     // Create your ServiceStack web service application with a singleton AppHost.
@@ -67,8 +60,9 @@ namespace Todos
         // Configure the container with the necessary routes for your ServiceStack application.
         public override void Configure(Container container)
         {
-            //Configure ServiceStack Json web services to return idiomatic Json camelCase properties.
-            JsConfig.EmitCamelCaseNames = true;
+            SetConfig(new HostConfig {
+                UseCamelCase = true
+            });
 
             //Register Redis factory in Funq IoC. The default port for Redis is 6379.
             container.Register<IRedisClientsManager>(new BasicRedisClientManager("localhost:6379"));
